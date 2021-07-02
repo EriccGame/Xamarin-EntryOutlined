@@ -23,7 +23,6 @@
                        VerticalOptions="Center" />
 
                 <Controls:StandardEntry x:Name="TextBox" VerticalOptions="FillAndExpand"
-                                        Margin="10,0,0,0"
                                         Focused="TextBox_Focused" 
                                         Unfocused="TextBox_Unfocused"
                                         TextChanged="OnTextChanged"
@@ -35,6 +34,7 @@
                                         TextColor="{Binding TextColor, Source={x:Reference this}}"
                                         BackgroundColor="{Binding BackgroundColorEntry, Source={x:Reference this}}"
                                         BorderThickness="{Binding BorderThickness, Source={x:Reference this}}"
+                                        MaxLength="{Binding MaxLength, Source={x:Reference this}}"
                                         Padding="{Binding PaddingEntry, Source={x:Reference this}}">
 
                 </Controls:StandardEntry>

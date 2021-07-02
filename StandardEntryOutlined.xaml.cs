@@ -14,16 +14,16 @@ namespace SustentApp.Controls
 	public partial class StandardEntryOutlined : ContentView
     {
 
-        public static readonly BindableProperty TextProperty =
+        public static BindableProperty TextProperty =
             BindableProperty.Create(nameof(Text), typeof(String), typeof(StandardEntryOutlined), null);
 
-        public static readonly BindableProperty PlaceholderProperty =
+        public static BindableProperty PlaceholderProperty =
             BindableProperty.Create(nameof(Placeholder), typeof(String), typeof(StandardEntryOutlined), null);
 
-        public static readonly BindableProperty PlaceholderColorProperty =
+        public static BindableProperty PlaceholderColorProperty =
             BindableProperty.Create(nameof(PlaceholderColor), typeof(Color), typeof(StandardEntryOutlined), Color.Blue);
 
-        public static readonly BindableProperty BorderColorProperty =
+        public static BindableProperty BorderColorProperty =
             BindableProperty.Create(nameof(BorderColor), typeof(Color), typeof(StandardEntryOutlined), Color.Blue);
 
         public static BindableProperty CornerRadiusProperty =
@@ -38,26 +38,48 @@ namespace SustentApp.Controls
         public static BindableProperty KeyboardProperty =
             BindableProperty.Create(nameof(Padding), typeof(Keyboard), typeof(StandardEntryOutlined), Keyboard.Default);
 
-        public static readonly BindableProperty FontFamilyProperty =
+        public static BindableProperty FontFamilyProperty =
             BindableProperty.Create(nameof(FontFamily), typeof(String), typeof(StandardEntryOutlined), null);
 
-        public static readonly BindableProperty FontSizeProperty =
+        public static BindableProperty FontSizeProperty =
             BindableProperty.Create(nameof(FontSize), typeof(Double), typeof(StandardEntryOutlined), null);
 
-        public static readonly BindableProperty TextColorProperty =
+        public static BindableProperty TextColorProperty =
             BindableProperty.Create(nameof(TextColor), typeof(Color), typeof(StandardEntryOutlined), Color.Black);
 
-        public static readonly BindableProperty BackgroundColorEntryProperty =
+        public static BindableProperty BackgroundColorEntryProperty =
             BindableProperty.Create(nameof(BackgroundColorEntry), typeof(Color), typeof(StandardEntryOutlined), Color.Transparent);
 
-        public static readonly BindableProperty PlaceholderBackgroundColorProperty =
+        public static BindableProperty PlaceholderBackgroundColorProperty =
             BindableProperty.Create(nameof(PlaceholderBackgroundColor), typeof(Color), typeof(StandardEntryOutlined), Color.Transparent);
+
+        public static BindableProperty MaxLengthProperty =
+            BindableProperty.Create(nameof(MaxLength), typeof(Int32), typeof(StandardEntryOutlined), 100);
+
+        public static BindableProperty NextViewProperty =
+            BindableProperty.Create(nameof(NextView), typeof(View), typeof(Entry));
+
+        public static BindableProperty StandardEntryProperty =
+            BindableProperty.Create(nameof(Entry), typeof(View), typeof(StandardEntry));
+
+        public View NextView
+        {
+            get => (View)GetValue(NextViewProperty);
+            set => SetValue(NextViewProperty, value);
+        }
+
+        public Int32 MaxLength
+        {
+            get { return (Int32)GetValue(MaxLengthProperty); }
+            set { SetValue(MaxLengthProperty, value); }
+        }
 
         public Color PlaceholderBackgroundColor
         {
             get { return (Color)GetValue(PlaceholderBackgroundColorProperty); }
             set { SetValue(PlaceholderBackgroundColorProperty, value); }
         }
+
         public Color BackgroundColorEntry
         {
             get { return (Color)GetValue(BackgroundColorEntryProperty); }
@@ -104,11 +126,6 @@ namespace SustentApp.Controls
             set => SetValue(PaddingEntryProperty, value);
         }
 
-        public StandardEntryOutlined()
-        {
-            InitializeComponent();
-        }
-
         public string Text
         {
             get { return (string)GetValue(TextProperty); }
@@ -133,6 +150,13 @@ namespace SustentApp.Controls
             set { SetValue(BorderColorProperty, value); }
         }
 
+        public StandardEntry Entry { get => this.TextBox; set { this.TextBox = value; } }
+
+        public StandardEntryOutlined()
+        {
+            InitializeComponent();
+        }
+
         async void TextBox_Focused(object sender, FocusEventArgs e)
         {
             await TranslateLabelToTitle();
@@ -143,19 +167,22 @@ namespace SustentApp.Controls
             await TranslateLabelToPlaceHolder();
         }
 
-        async Task TranslateLabelToTitle()
+        public async Task TranslateLabelToTitle()
         {
-            if (string.IsNullOrEmpty(this.Text))
+            //if (String.IsNullOrEmpty(this.Text))
             {
                 var placeHolder = this.PlaceHolderLabel;
                 var distance = GetPlaceholderDistance(placeHolder);
-                await placeHolder.TranslateTo(0, -distance);
+
+                distance = (distance == -1) ? 19 : distance;
+
+                await placeHolder.TranslateTo(0, -19);
             }
         }
 
-        async Task TranslateLabelToPlaceHolder()
+        public async Task TranslateLabelToPlaceHolder()
         {
-            if (string.IsNullOrEmpty(this.Text))
+            if (String.IsNullOrEmpty(this.Text))
             {
                 await this.PlaceHolderLabel.TranslateTo(0, 0);
             }
@@ -172,9 +199,31 @@ namespace SustentApp.Controls
         }
 
         public event EventHandler<TextChangedEventArgs> TextChanged;
-        public virtual void OnTextChanged(System.Object sender, Xamarin.Forms.TextChangedEventArgs e)
+        public virtual async void OnTextChanged(System.Object sender, Xamarin.Forms.TextChangedEventArgs e)
         {
             TextChanged?.Invoke(this, e);
+
+            if (!String.IsNullOrEmpty(this.Text))
+            {
+                await TranslateLabelToTitle();
+            }
+        }
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+
+            if (TextBox != null)
+            {
+                TextBox.Completed += (sender, e) =>
+                {
+                    this.OnNext();
+                };
+            }
+        }
+
+        public void OnNext()
+        {
+            NextView?.Focus();
         }
     }
 }
