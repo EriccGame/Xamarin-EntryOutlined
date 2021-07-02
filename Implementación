@@ -1,0 +1,15 @@
+Agregar al XAML:
+
+<Controls:StandardEntryOutlined x:Name="txtEmail"
+                                Margin="20,0,20,0"
+                                Placeholder="Correo electrónico"
+                                PlaceholderColor="Silver"
+                                PlaceholderBackgroundColor="White"
+                                CornerRadius="1"
+                                TextColor="#707070"
+                                BorderColor="Red"
+                                Keyboard="Email" 
+                                FontFamily="Ebrima" 
+                                FontSize="16"
+                                Text="">
+</Controls:StandardEntryOutlined>
